@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -34,5 +35,26 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+    public function configure()
+    {
+        parent::configure();
+
+        return $this->afterCreating(function (User $user) {
+            parent::configure();
+            $thisUserId = ['user_id' => $user->id];
+            $ns = 'Database\Factories\\';
+            $factories = [
+                $ns.'FollowerFactory',
+                $ns.'SubscriberFactory',
+                $ns.'DonationFactory',
+                $ns.'MerchSaleFactory',
+            ];
+
+            foreach ($factories as $factory){
+                $factoryInstance = resolve($factory);
+                $factoryInstance->new()->times(rand(300,500))->create($thisUserId);
+            }
+        });
     }
 }
