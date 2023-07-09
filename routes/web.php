@@ -35,4 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+Route::get('/auth/twitch', [LoginController::class, 'twitchAuth'])->name('auth.twitch.redirect');
+Route::get('/auth/twitch/cb', [LoginController::class, 'twitchLoginCallback'])->name('auth.twitch.cb');
+
+
+require __DIR__ . '/auth.php';

@@ -11,6 +11,9 @@ module.exports = {
 
     theme: {
         extend: {
+            colors: {
+                'twitch': '#9146FF',
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
