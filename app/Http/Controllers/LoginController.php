@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 
 
@@ -43,5 +45,14 @@ class LoginController extends Controller
     public function twitchAuth(Request $request)
     {
         return Socialite::driver('twitch')->redirect();
+    }
+
+    public function getDashboard()
+    {
+
+        $userResource = new UserResource(auth()->user());
+        return Inertia::render('Dashboard', [
+            'user' => $userResource,
+        ]);
     }
 }
