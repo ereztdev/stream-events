@@ -20,7 +20,7 @@ class UserResource extends JsonResource
             'events' => [
                 'donations' => DonationResource::collection($this->donations),
                 'followers' => $this->followers,
-                'sales' => MerchSaleResource::collection($this->merchSales),
+                'merch_sales' => MerchSaleResource::collection($this->merchSales),
                 'subscribers' => SubscriberResource::collection($this->subscribers),
             ]
         ];
