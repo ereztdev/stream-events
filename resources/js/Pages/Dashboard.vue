@@ -1,20 +1,71 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {Head, usePage} from '@inertiajs/vue3';
-import {onMounted} from "vue";
+import {ref, onMounted} from "vue";
 
-const bundledUserData = usePage().props.bundledUserData;
+Array.prototype.random = function () {
+    return this[Math.floor((Math.random()*this.length))];
+}
+
+const user = usePage().props.user.data;
+let remappedEvents = ref([]);
 
 onMounted(() => {
-    console.log(bundledUserData)
+    console.log(user)
+    remappedEvents.value = sortAndMapUserEvents(user);
+    //after vuex installed commit all events to state here
 });
 
-const sortAndMapUserEvents = () => {
+const eventRespectiveAttributes = (event, getText = false) => {
+    const type = event.type;
+    let color = '';
+    let text = '';
 
+    switch (type) {
+        case 'followers':
+            color = 'bg-pink-200';
+            text = `${event.name} has followed you!`
+            break;
+        case 'subscribers':
+            color = 'bg-sky-200';
+            text = `you just got a '${event.tierName}' subscription from ${event.name}`
+            break;
+        case 'sales':
+            color = 'bg-emerald-200';
+            text = `${event.name} has bought ${+ event.amount} ${event.item_name} for ${event.currencySymbol+event.price}!`
+            break;
+        case 'donations':
+            color = 'bg-violet-200';
+            text = `${event.name} donated ${event.currencySymbol+event.amount} to you!`
+            break;
+        default:
+            color = 'bg-blue-200';
+            break;
+    }
+
+    return getText ? text : color;
+}
+
+const sortAndMapUserEvents = (data) => {
+    const {name, email, events} = data;
+    let tempEvents = [];
+
+    Object.keys(events).forEach(eventType => {
+        const eventTypeData = events[eventType];
+
+        eventTypeData.forEach(event => {
+            const remappedEvent = {
+                type: eventType,
+                ...event,
+            };
+
+            tempEvents.push(remappedEvent);
+        });
+    });
+
+    remappedEvents = tempEvents.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 };
-
 </script>
-
 <template>
     <Head title="Dashboard"/>
 
@@ -25,7 +76,27 @@ const sortAndMapUserEvents = () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            LIST HERE
+                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                    <div v-if="remappedEvents.length" v-for="event in remappedEvents"
+                         :key="event.id"
+                         :class="`flex items-center border-b p-4 sm:p-8 ${eventRespectiveAttributes(event)} shadow rounded-lg m-5`"
+                    >
+                        <div class="w-2 h-2 rounded-full bg-gray-500 mr-5"></div>
+
+                        <div class="flex-grow">
+                            <p class="text-gray-800">{{ eventRespectiveAttributes(event, true) }}</p>
+                        </div>
+                        <div class="">
+                            <input checked id="read-event" type="checkbox" value=""
+                                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            <label for="read-event"
+                                   class="ml-2 text-sm font-medium text-gray-900 text-xs capitalize">read</label>
+                        </div>
+                    </div>
+                    <div v-else class="flex justify-center items-center border-b p-4 sm:p-8 shadow rounded-lg m-5">
+                            <p class="text-gray-800">no events yet, getsome!</p>
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
