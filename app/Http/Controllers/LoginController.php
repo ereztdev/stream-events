@@ -2,16 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateEventsRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 
 
 class LoginController extends Controller
 {
+
+    public function updateEvent(UpdateEventsRequest $request)
+    {
+        try {
+            $tableName = $request->eventType;
+            $modelName = Str::studly(Str::singular($tableName));
+            $ns = 'App\Models\\';
+            $fqn = $ns . $modelName;
+
+            $modelFound = $fqn::find($request->eventId);
+
+            $modelFound->read = !$request->eventRead;
+            $modelFound->save();
+            return response()->json([
+                'error' => false,
+                'message' => 'successfully updated read status',
+                'data' => $modelFound,
+            ]);
+        } catch (\Exception $exception) {
+            return response()->json([
+                'error' => true,
+                'message' => $exception->getMessage(),
+                'data' => [],
+            ]);
+        }
+    }
 
     public function twitchLoginCallback(Request $request)
     {

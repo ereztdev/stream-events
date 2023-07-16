@@ -27,6 +27,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [LoginController::class, 'getDashboard'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::patch('/dashboard', [LoginController::class, 'updateEvent'])->middleware(['auth', 'verified'])->name('dashboard.update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
