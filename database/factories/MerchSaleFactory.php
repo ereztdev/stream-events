@@ -19,6 +19,7 @@ class MerchSaleFactory extends Factory
     {
 
         return [
+            'name' => fake()->name,
             'item_name' => fake()->word,
             'amount' => fake()->numberBetween(1,10),
             'price' => fake()->numberBetween(20,100),
