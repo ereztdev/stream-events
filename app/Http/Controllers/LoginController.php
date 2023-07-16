@@ -36,7 +36,7 @@ class LoginController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => $exception->getMessage(),
-                'data' => [],
+                'data' => null,
             ]);
         }
     }

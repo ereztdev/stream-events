@@ -1,66 +1,80 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+![](https://github.com/ereztdev/stream-events/blob/master/public/logo.png?raw=true)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Stream Events
 
-## About Laravel
+## Installation For Local Environment
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+#### pre-requisites
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **PHP** - via your webserver
+- **Node.js** - we'll be using Node's npm packagee manager for the front end, if you dont have it, you can get it [here](https://nodejs.org/en)
+- **Composer** - PHP Dependency Manager, if you don't have it, you
+  can [download it right here](https://getcomposer.org/download/).
+- **MySQL OR MariaDB** - a persistent storage layer for our data (database)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+#### Installation Procedure
 
-## Learning Laravel
+- clone this repo (`git clone https://github.com/ereztdev/stream-events`) into your webserver
+- switch into the repo directory where you pulled the repo: (`cd stream-events`)
+- install PHP dependencies (`composer install`)
+- setup your environment, lets copy the env `cp .env.example .env`
+- now let's populate the db config there according to your SQL setup, here's an example:
+    - DB_CONNECTION=mysql
+    - DB_HOST=127.0.0.1
+    - DB_PORT=3306
+    - DB_DATABASE=stream_events
+    - DB_USERNAME=erez
+    - DB_PASSWORD=password
+- As we are using here a 3rd party login (twitch), update the following paramters in the `.env` with your twitch credentials:
+  - TWITCH_CLIENT_ID=<your client ID>
+  - TWITCH_CLIENT_SECRET=<your clien secret>
+  - TWITCH_REDIRECT_URL=http://localhost:8000/auth/twitch/cb
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- in one swoop, lets migrate and populate our db: ` php artisan db:wipe && php artisan migrate && php artisan db:seed`
+- Let's generate our app unique encryption key, run `php artisan key:generate``
+- Let's install all front end packages, run `npm run dev`
+- since the above command will occupy a window to serve our front end REPL, let's open a new bash/command window
+- in our new window we'll fire up our app, run `php artisan serve`
+- goto [http://localhost:8000](http://localhost:8000)
+- In both `/register` and `/login` you will have an option to login with twitch, don't worry about double registrations or any of that
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Route Map
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### GET / 
+##### generic welcome page, either login or register there
 
-## Laravel Sponsors
+#### Response (HTTP 200 OK)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### GET /dashboard
+##### Get the dashboard and if user has events, it will show here
 
-### Premium Partners
+#### Response (HTTP 200 OK):
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+***
+### PATCH /dashboard
+##### Update specific user events read status by an event ID
 
-## Contributing
+Parameters:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- eventId (integer) - The ID of the event to update
+- eventType (string) - The type of the event to update
+- eventRead (boolean) - The current read status of the event to update
 
-## Code of Conduct
+#### Response:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Success (HTTP 200 OK):
+```
+{
+"message": "successfully updated read status",
+"data": {event},
+"error": false
+}
+```
+Failure (HTTP 400 Bad Request):
+```
+{
+"message": "<exception message>",
+"data": null,
+"error": true
+}
+```
