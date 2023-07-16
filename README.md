@@ -44,6 +44,7 @@
 ##### generic welcome page, either login or register there
 
 #### Response (HTTP 200 OK)
+***
 
 ### GET /dashboard
 ##### Get the dashboard and if user has events, it will show here
