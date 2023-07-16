@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {Head, usePage} from '@inertiajs/vue3';
-import {ref, onMounted} from "vue";
+import {ref, onMounted, onUnmounted} from "vue";
 
 Array.prototype.random = function () {
     return this[Math.floor((Math.random()*this.length))];
@@ -9,12 +9,28 @@ Array.prototype.random = function () {
 
 const user = usePage().props.user.data;
 let remappedEvents = ref([]);
+let displayedItems = ref(100);
+const itemsPerLoad = 100;
+
+
 
 onMounted(() => {
-    console.log(user)
     remappedEvents.value = sortAndMapUserEvents(user);
-    //after vuex installed commit all events to state here
+    window.addEventListener('scroll', loadMoreItems);
+    console.log(user, remappedEvents.value)
+
 });
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', loadMoreItems);
+});
+
+const loadMoreItems = () => {
+    if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight) {
+        // User reached the end of the page, load more items
+        displayedItems.value += itemsPerLoad;
+    }
+};
 
 const eventRespectiveAttributes = (event, getText = false) => {
     const type = event.type;
@@ -30,7 +46,7 @@ const eventRespectiveAttributes = (event, getText = false) => {
             color = 'bg-sky-200';
             text = `you just got a '${event.tierName}' subscription from ${event.name}`
             break;
-        case 'sales':
+        case 'merch_sales':
             color = 'bg-emerald-200';
             text = `${event.name} has bought ${+ event.amount} ${event.item_name} for ${event.currencySymbol+event.price}!`
             break;
@@ -63,7 +79,27 @@ const sortAndMapUserEvents = (data) => {
         });
     });
 
-    remappedEvents = tempEvents.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    return tempEvents.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+};
+
+const updateEventStatus = async (eventId, eventType, eventRead) => {
+    try {
+        const response = await axios.patch('/dashboard', {
+            eventId,
+            eventType,
+            eventRead
+        });
+
+        console.log(response.data);
+
+        const eventToUpdate = remappedEvents.value.find(event => event.id === eventId);
+
+        if (eventToUpdate) {
+            eventToUpdate.read = !eventToUpdate.read;
+        }
+    } catch (error) {
+        console.error(error);
+    }
 };
 </script>
 <template>
@@ -77,7 +113,7 @@ const sortAndMapUserEvents = (data) => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <div v-if="remappedEvents.length" v-for="event in remappedEvents"
+                    <div v-if="remappedEvents.length" v-for="event in remappedEvents.slice(0, displayedItems)"
                          :key="event.id"
                          :class="`flex items-center border-b p-4 sm:p-8 ${eventRespectiveAttributes(event)} shadow rounded-lg m-5`"
                     >
@@ -87,10 +123,17 @@ const sortAndMapUserEvents = (data) => {
                             <p class="text-gray-800">{{ eventRespectiveAttributes(event, true) }}</p>
                         </div>
                         <div class="">
-                            <input checked id="read-event" type="checkbox" value=""
+                            <input id="read-event"
+                                   type="checkbox"
+                                   :value="event.read"
+                                   :checked="event.read"
+                                   @click="updateEventStatus(event.id, event.type, event.read)"
                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                             <label for="read-event"
-                                   class="ml-2 text-sm font-medium text-gray-900 text-xs capitalize">read</label>
+                                   class="ml-2 text-sm font-medium text-gray-900 text-xs capitalize"
+                            >
+                                read
+                            </label>
                         </div>
                     </div>
                     <div v-else class="flex justify-center items-center border-b p-4 sm:p-8 shadow rounded-lg m-5">
