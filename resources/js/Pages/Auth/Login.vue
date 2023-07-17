@@ -39,7 +39,7 @@ const loginWithTwitch = () => {
         <h2 class="flex justify-center mb-8 text-2xl font-extrabold leading-none tracking-tight text-gray-900
       dark:text-white underline underline-offset-3 decoration-8 decoration-blue-400 dark:decoration-blue-600"
         >
-            Quick Social Register
+            Quick Social Login
         </h2>
 
         <button @click="loginWithTwitch" class="w-full bg-twitch mb-8 flex justify-center rounded px-6 py-2.5 text-xs font-medium uppercase
