@@ -9,6 +9,11 @@ class Donation extends Model
 {
     use HasFactory;
 
+    /**
+     * get the donation's denominated currency
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function currency()
     {
         return $this->hasOne(Currency::class, 'id', 'currency_id');

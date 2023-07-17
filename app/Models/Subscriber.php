@@ -9,6 +9,11 @@ class Subscriber extends Model
 {
     use HasFactory;
 
+    /**
+     * get the subscriber's tier
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function tier()
     {
         return $this->hasOne(Tier::class, 'id', 'tier_id');

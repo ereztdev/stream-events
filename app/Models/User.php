@@ -43,21 +43,41 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * get user's donations
+     *
+     * @return HasMany
+     */
     public function donations(): HasMany
     {
         return $this->hasMany(Donation::class);
     }
 
+    /**
+     * get user's followers
+     *
+     * @return HasMany
+     */
     public function followers(): HasMany
     {
         return $this->hasMany(Follower::class);
     }
 
+    /**
+     * get user's merchSales
+     *
+     * @return HasMany
+     */
     public function merchSales(): HasMany
     {
         return $this->hasMany(MerchSale::class);
     }
 
+    /**
+     * get user's subscribers
+     *
+     * @return HasMany
+     */
     public function subscribers(): HasMany
     {
         return $this->hasMany(Subscriber::class);

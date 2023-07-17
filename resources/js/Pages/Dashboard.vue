@@ -3,16 +3,10 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {Head, usePage} from '@inertiajs/vue3';
 import {ref, onMounted, onUnmounted} from "vue";
 
-Array.prototype.random = function () {
-    return this[Math.floor((Math.random()*this.length))];
-}
-
 const user = usePage().props.user.data;
 let remappedEvents = ref([]);
 let displayedItems = ref(100);
 const itemsPerLoad = 100;
-
-
 
 onMounted(() => {
     remappedEvents.value = sortAndMapUserEvents(user);
@@ -25,13 +19,23 @@ onUnmounted(() => {
     window.removeEventListener('scroll', loadMoreItems);
 });
 
+/**
+ * the listening condition that would increase the number of viewable items in the view
+ */
 const loadMoreItems = () => {
     if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight) {
-        // User reached the end of the page, load more items
         displayedItems.value += itemsPerLoad;
     }
 };
 
+/**
+ *
+ * set each row with either respective text or color according to event type
+ *
+ * @param event
+ * @param getText
+ * @returns {string|string}
+ */
 const eventRespectiveAttributes = (event, getText = false) => {
     const type = event.type;
     let color = '';
@@ -62,6 +66,14 @@ const eventRespectiveAttributes = (event, getText = false) => {
     return getText ? text : color;
 }
 
+/**
+ *
+ * remapping models into a single list, sorted by created_at and each object would have an added "type" to signify
+ * context
+ *
+ * @param data
+ * @returns {*[]}
+ */
 const sortAndMapUserEvents = (data) => {
     const {name, email, events} = data;
     let tempEvents = [];
@@ -74,7 +86,6 @@ const sortAndMapUserEvents = (data) => {
                 type: eventType,
                 ...event,
             };
-
             tempEvents.push(remappedEvent);
         });
     });
@@ -82,6 +93,15 @@ const sortAndMapUserEvents = (data) => {
     return tempEvents.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 };
 
+/**
+ *
+ * update an event's read status
+ *
+ * @param eventId
+ * @param eventType
+ * @param eventRead
+ * @returns {Promise<void>}
+ */
 const updateEventStatus = async (eventId, eventType, eventRead) => {
     try {
         const response = await axios.patch('/dashboard', {

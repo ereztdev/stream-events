@@ -15,6 +15,12 @@ use Laravel\Socialite\Facades\Socialite;
 class LoginController extends Controller
 {
 
+    /**
+     * Update event read status
+     *
+     * @param UpdateEventsRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateEvent(UpdateEventsRequest $request)
     {
         try {
@@ -41,6 +47,13 @@ class LoginController extends Controller
         }
     }
 
+    /**
+     * Instantiating the user from socialite (Twitch) and setting into the DB
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Exception
+     */
     public function twitchLoginCallback(Request $request)
     {
         $user = null;
@@ -70,15 +83,26 @@ class LoginController extends Controller
         return back(404);
     }
 
+    /**
+     * Get user authenticated with twitch Oauth server
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+     */
     public function twitchAuth(Request $request)
     {
         return Socialite::driver('twitch')->redirect();
     }
 
+    /**
+     * return the dashboard view via Inertia
+     *
+     * @return \Inertia\Response
+     */
     public function getDashboard()
     {
-
         $userResource = new UserResource(auth()->user());
+
         return Inertia::render('Dashboard', [
             'user' => $userResource,
         ]);
