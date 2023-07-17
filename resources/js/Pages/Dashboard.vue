@@ -6,6 +6,7 @@ import {ref, onMounted, onUnmounted} from "vue";
 const user = usePage().props.user.data;
 let remappedEvents = ref([]);
 let displayedItems = ref(100);
+let isLoading = ref(false);
 const itemsPerLoad = 100;
 
 onMounted(() => {
@@ -104,11 +105,15 @@ const sortAndMapUserEvents = (data) => {
  */
 const updateEventStatus = async (eventId, eventType, eventRead) => {
     try {
+        isLoading.value = true;
         const response = await axios.patch('/dashboard', {
             eventId,
             eventType,
             eventRead
-        });
+        })
+            .finally(()=>{
+                isLoading.value = false;
+            });
 
         console.log(response.data);
 
@@ -144,6 +149,7 @@ const updateEventStatus = async (eventId, eventType, eventRead) => {
                         </div>
                         <div class="">
                             <input id="read-event"
+                                   :disabled="isLoading"
                                    type="checkbox"
                                    :value="event.read"
                                    :checked="event.read"
